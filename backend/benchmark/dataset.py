@@ -1,31 +1,57 @@
 import json
-import os
-
-# We will provide a subset of the dataset for demonstration purposes.
-# In a real scenario, this would be loaded from a JSON/CSV file.
 
 BENCHMARK_DATASET = [
-    {
-        "id": "f1",
-        "category": "factual",
-        "difficulty": "easy",
-        "question": "What is the capital of France?",
-        "expected_answer_keywords": ["Paris"]
-    },
-    {
-        "id": "r1",
-        "category": "reasoning",
-        "difficulty": "medium",
-        "question": "If I have 3 apples and eat 1, then buy 5 more, how many apples do I have?",
-        "expected_answer_keywords": ["7", "seven"]
-    },
-    {
-        "id": "r2",
-        "category": "reasoning",
-        "difficulty": "hard",
-        "question": "Solve for x: 2x + 5 = 15",
-        "expected_answer_keywords": ["5", "five"]
-    }
+    {"id": "f1", "category": "factual", "difficulty": "easy", "question": "What is the capital of France?", "expected_answer_keywords": ["Paris"]},
+    {"id": "f2", "category": "factual", "difficulty": "easy", "question": "What is the largest planet in our solar system?", "expected_answer_keywords": ["Jupiter"]},
+    {"id": "f3", "category": "factual", "difficulty": "medium", "question": "Who is the author of the novel '1984'?", "expected_answer_keywords": ["George Orwell", "Orwell"]},
+    {"id": "f4", "category": "factual", "difficulty": "easy", "question": "What is the chemical symbol for gold?", "expected_answer_keywords": ["Au"]},
+    {"id": "f5", "category": "factual", "difficulty": "medium", "question": "Who was the first person to walk on the moon?", "expected_answer_keywords": ["Neil Armstrong", "Armstrong"]},
+    {"id": "f6", "category": "factual", "difficulty": "easy", "question": "What is the tallest mountain in the world?", "expected_answer_keywords": ["Everest"]},
+    {"id": "f7", "category": "factual", "difficulty": "medium", "question": "Who painted the Mona Lisa?", "expected_answer_keywords": ["Leonardo da Vinci", "da Vinci"]},
+    {"id": "f8", "category": "factual", "difficulty": "hard", "question": "What is the approximate speed of light in a vacuum in km/s?", "expected_answer_keywords": ["300,000", "299,792", "300000"]},
+    {"id": "f9", "category": "factual", "difficulty": "medium", "question": "What is the smallest country in the world by land area?", "expected_answer_keywords": ["Vatican"]},
+    {"id": "f10", "category": "factual", "difficulty": "easy", "question": "What is the largest ocean on Earth?", "expected_answer_keywords": ["Pacific"]},
+    {"id": "f11", "category": "factual", "difficulty": "medium", "question": "In what year did the Titanic sink?", "expected_answer_keywords": ["1912"]},
+    {"id": "f12", "category": "factual", "difficulty": "medium", "question": "What is the most abundant gas in Earth's atmosphere?", "expected_answer_keywords": ["Nitrogen"]},
+    {"id": "f13", "category": "factual", "difficulty": "hard", "question": "Who discovered penicillin?", "expected_answer_keywords": ["Alexander Fleming", "Fleming"]},
+    {"id": "f14", "category": "factual", "difficulty": "easy", "question": "How many continents are there on Earth?", "expected_answer_keywords": ["7", "seven"]},
+    {"id": "f15", "category": "factual", "difficulty": "medium", "question": "What is the hardest naturally occurring substance on Earth?", "expected_answer_keywords": ["Diamond"]},
+    {"id": "f16", "category": "factual", "difficulty": "easy", "question": "What is the capital of Japan?", "expected_answer_keywords": ["Tokyo"]},
+    {"id": "f17", "category": "factual", "difficulty": "medium", "question": "Who wrote the play Romeo and Juliet?", "expected_answer_keywords": ["William Shakespeare", "Shakespeare"]},
+    {"id": "f18", "category": "factual", "difficulty": "medium", "question": "What is the hottest desert in the world?", "expected_answer_keywords": ["Sahara"]},
+    {"id": "f19", "category": "factual", "difficulty": "easy", "question": "What is the chemical formula for water?", "expected_answer_keywords": ["H2O"]},
+    {"id": "f20", "category": "factual", "difficulty": "easy", "question": "Which planet in our solar system is known as the Red Planet?", "expected_answer_keywords": ["Mars"]},
+    {"id": "f21", "category": "factual", "difficulty": "easy", "question": "Who was the first President of the United States?", "expected_answer_keywords": ["George Washington", "Washington"]},
+    {"id": "f22", "category": "factual", "difficulty": "medium", "question": "What is the official currency of the United Kingdom?", "expected_answer_keywords": ["Pound", "Sterling"]},
+    {"id": "f23", "category": "factual", "difficulty": "medium", "question": "What is the longest river in Africa?", "expected_answer_keywords": ["Nile"]},
+    {"id": "f24", "category": "factual", "difficulty": "hard", "question": "Who is credited with inventing the telephone?", "expected_answer_keywords": ["Alexander Graham Bell", "Bell"]},
+    {"id": "f25", "category": "factual", "difficulty": "hard", "question": "What is the smallest bone in the human body?", "expected_answer_keywords": ["Stapes", "stirrup"]},
+    
+    {"id": "r1", "category": "reasoning", "difficulty": "easy", "question": "If I have 3 apples and eat 1, then buy 5 more, how many apples do I have?", "expected_answer_keywords": ["7", "seven"]},
+    {"id": "r2", "category": "reasoning", "difficulty": "medium", "question": "Solve for x: 2x + 5 = 15", "expected_answer_keywords": ["5", "five"]},
+    {"id": "r3", "category": "reasoning", "difficulty": "hard", "question": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost in cents?", "expected_answer_keywords": ["5", "five"]},
+    {"id": "r4", "category": "reasoning", "difficulty": "hard", "question": "If it takes 5 machines 5 minutes to make 5 widgets, how many minutes would it take 100 machines to make 100 widgets?", "expected_answer_keywords": ["5", "five"]},
+    {"id": "r5", "category": "reasoning", "difficulty": "hard", "question": "In a lake, there is a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take for the patch to cover half of the lake?", "expected_answer_keywords": ["47", "forty-seven"]},
+    {"id": "r6", "category": "reasoning", "difficulty": "medium", "question": "What is the next number in the sequence: 2, 4, 8, 16, ...", "expected_answer_keywords": ["32", "thirty-two"]},
+    {"id": "r7", "category": "reasoning", "difficulty": "hard", "question": "If A is the brother of B, and B is the sister of C, and C is the father of D, how is A related to D?", "expected_answer_keywords": ["Uncle"]},
+    {"id": "r8", "category": "reasoning", "difficulty": "medium", "question": "A farmer has 17 sheep, and all but 9 die. How many are left?", "expected_answer_keywords": ["9", "nine"]},
+    {"id": "r9", "category": "reasoning", "difficulty": "easy", "question": "Some months have 31 days. How many have 28?", "expected_answer_keywords": ["12", "twelve", "all"]},
+    {"id": "r10", "category": "reasoning", "difficulty": "easy", "question": "What is 15% of 200?", "expected_answer_keywords": ["30", "thirty"]},
+    {"id": "r11", "category": "reasoning", "difficulty": "medium", "question": "If a train travels 60 miles per hour, how far does it go in 2.5 hours?", "expected_answer_keywords": ["150", "one hundred fifty"]},
+    {"id": "r12", "category": "reasoning", "difficulty": "hard", "question": "Divide 30 by half and add 10. What is the result?", "expected_answer_keywords": ["70", "seventy"]},
+    {"id": "r13", "category": "reasoning", "difficulty": "easy", "question": "Which is heavier: a ton of bricks or a ton of feathers?", "expected_answer_keywords": ["Neither", "equal", "same"]},
+    {"id": "r14", "category": "reasoning", "difficulty": "medium", "question": "You are in a race and you pass the person in second place. What place are you in now?", "expected_answer_keywords": ["Second", "2nd"]},
+    {"id": "r15", "category": "reasoning", "difficulty": "hard", "question": "If two typists can type two pages in two minutes, how many typists will it take to type 18 pages in six minutes?", "expected_answer_keywords": ["6", "six"]},
+    {"id": "r16", "category": "reasoning", "difficulty": "easy", "question": "What is the square root of 144?", "expected_answer_keywords": ["12", "twelve"]},
+    {"id": "r17", "category": "reasoning", "difficulty": "hard", "question": "If yesterday was tomorrow, today would be Friday. What day is today?", "expected_answer_keywords": ["Wednesday"]},
+    {"id": "r18", "category": "reasoning", "difficulty": "medium", "question": "A box contains 4 red balls and 6 blue balls. What is the probability of drawing a red ball? (Write as a fraction or decimal)", "expected_answer_keywords": ["0.4", "40%", "4/10", "2/5"]},
+    {"id": "r19", "category": "reasoning", "difficulty": "medium", "question": "If 3x - 7 = 11, what is x?", "expected_answer_keywords": ["6", "six"]},
+    {"id": "r20", "category": "reasoning", "difficulty": "hard", "question": "A clock shows the time as 3:15. What is the angle in degrees between the hour and minute hands?", "expected_answer_keywords": ["7.5", "seven and a half"]},
+    {"id": "r21", "category": "reasoning", "difficulty": "hard", "question": "If you flip a fair coin 3 times, what is the probability of getting all heads?", "expected_answer_keywords": ["12.5%", "0.125", "1/8"]},
+    {"id": "r22", "category": "reasoning", "difficulty": "easy", "question": "How many days are in a leap year?", "expected_answer_keywords": ["366"]},
+    {"id": "r23", "category": "reasoning", "difficulty": "easy", "question": "What is the sum of the interior angles of a triangle in degrees?", "expected_answer_keywords": ["180", "one hundred eighty"]},
+    {"id": "r24", "category": "reasoning", "difficulty": "medium", "question": "If a recipe calls for 2 cups of sugar to make 4 servings, how many cups of sugar are needed for 10 servings?", "expected_answer_keywords": ["5", "five"]},
+    {"id": "r25", "category": "reasoning", "difficulty": "medium", "question": "What is 2 raised to the power of 8?", "expected_answer_keywords": ["256", "two hundred fifty six"]}
 ]
 
 def get_benchmark_dataset():
