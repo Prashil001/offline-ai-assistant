@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, END
 from graph.state import GraphState
-from graph.nodes import generate_node, validate_node
+from graph.nodes import generate_node, validate_node, retrieve_node
 
 MAX_RETRIES = 3
 
@@ -29,12 +29,14 @@ async def fallback_node(state: GraphState) -> GraphState:
 def create_workflow() -> StateGraph:
     workflow = StateGraph(GraphState)
     
+    workflow.add_node("retrieve", retrieve_node)
     workflow.add_node("generate", generate_node)
     workflow.add_node("validate", validate_node)
     workflow.add_node("fallback", fallback_node)
     
-    workflow.set_entry_point("generate")
+    workflow.set_entry_point("retrieve")
     
+    workflow.add_edge("retrieve", "generate")
     workflow.add_edge("generate", "validate")
     workflow.add_conditional_edges(
         "validate",

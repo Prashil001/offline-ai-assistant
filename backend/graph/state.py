@@ -7,6 +7,7 @@ class GraphState(TypedDict):
     """
     question: str
     model_name: str
+    context: Optional[str]
     raw_response: Optional[str]
     parsed_json: Optional[StructuredAnswer]
     error: Optional[str]

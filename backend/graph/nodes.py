@@ -1,12 +1,24 @@
 import json
 import logging
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
 from graph.state import GraphState
 from models.structured import StructuredAnswer
 from llm.ollama_client import get_llm
+from rag.vector_store import retrieve_context
 from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
+
+async def retrieve_node(state: GraphState) -> GraphState:
+    """Retrieves context from ChromaDB based on the question."""
+    logger.info("Node: retrieve")
+    try:
+        docs = retrieve_context(state["question"])
+        context = "\n\n".join([f"Source ({doc.metadata.get('source_file', 'unknown')}):\n{doc.page_content}" for doc in docs])
+        return {"context": context}
+    except Exception as e:
+        logger.error(f"Error retrieving context: {e}")
+        return {"context": "No context available."}
 
 async def generate_node(state: GraphState) -> GraphState:
     """Generates the response from the LLM."""
@@ -14,15 +26,20 @@ async def generate_node(state: GraphState) -> GraphState:
     llm = get_llm(state["model_name"]).bind(format="json")
     
     prompt = f"""
-    You are an AI assistant. Answer the user's question.
+    You are an AI assistant. Answer the user's question using the provided context.
+    If the context doesn't contain the answer, say so, but still output valid JSON.
+    
     You MUST output VALID JSON matching exactly this schema:
     {{
         "answer": "your answer here",
         "confidence": 0.95,
-        "sources": ["source 1", "source 2"]
+        "sources": ["source file 1", "source file 2"]
     }}
     
     Do not output any markdown formatting, only the JSON object.
+    
+    Context:
+    {state.get('context', 'No context provided.')}
     
     Question: {state['question']}
     """
