@@ -11,6 +11,7 @@ export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [model, setModel] = useState('qwen3:4b');
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const sendMessage = useCallback(async (content: string) => {
     const userMsg: Message = {
@@ -43,10 +44,16 @@ export function useChat() {
           message: content,
           model: model,
           stream: true,
+          conversation_id: conversationId,
         }),
       });
 
       if (!response.body) throw new Error("No response body");
+      
+      const newConvId = response.headers.get("X-Conversation-ID");
+      if (newConvId && !conversationId) {
+        setConversationId(newConvId);
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -85,7 +92,38 @@ export function useChat() {
     } finally {
       setIsTyping(false);
     }
-  }, [model]);
+  }, [model, conversationId]);
 
-  return { messages, sendMessage, isTyping, model, setModel };
+  const loadConversation = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/chat/history/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch history");
+      const data = await response.json();
+      
+      setMessages(data.map((msg: any) => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        latency_ms: msg.latency_ms,
+      })));
+      setConversationId(id);
+    } catch (error) {
+      console.error("Error loading conversation:", error);
+    }
+  }, []);
+
+  const createNewConversation = useCallback(() => {
+    setMessages([]);
+    setConversationId(null);
+  }, []);
+
+  return { 
+    messages, 
+    sendMessage, 
+    isTyping, 
+    model, 
+    setModel,
+    loadConversation,
+    createNewConversation
+  };
 }
